@@ -1,0 +1,39 @@
+---
+title: "Applications of Data Science in the Swine Industry"
+author: "Caleb J. Grohmann"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: 
+  bookdown::gitbook: default
+documentclass: book
+github-repo: cjgwx7/phd-research
+description: "Experiments using advanced analytical methods for description, prediction, and prescription of data and outcomes within the United States commercial swine industry."
+---
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE, message = FALSE
+)
+```
+
+# Preface {-}
+
+This book is meant to document, in an extremely detailed fashion, every research project, experiment, and analysis conducted during my PhD program. The main goal of this book is to provide a seamless interface in which to combine technical and physical programming methods with the results of each analyses and subsequent discussion of these results. The book will be divided into parts, and each part encompasses all analyses within each project I have undertaken over the course of my PhD. Thus, the layout of a "part" will resemble a scientific manuscript, with chapters such as an Introduction, Methods, Results, and Discussion. However, where each part will differ from a scientific manuscript is that the every step of the analysis will be performed within the text, with complete transparency behind every line of code written and dataset used. Hopefully, in turn, the methods and analyses conducted can be reproduced and serve as the basis of publications, or more simply, avenues to explore the many ways data science can positively impact the future of the swine industry.
+
+## General Layout {-}
+
+As mentioned above, each part will resemble a scientific manuscript. A brief summary of the layout for all chapters within a part is listed below:
+
+  1. *Introduction:* Typically a paragraph that introduces each "Part". Information provided will be the project title, date, key collaborators, and position within my PhD program
+  
+  2. *Background:* An introduction of the topic for each part, including relevant literature, project motivation, and specification of objectives. This section will be written in a manner suitable for intended publication of project findings in a scientific journal such as [Genetics Selection Evolution](https://gsejournal.biomedcentral.com/?gclid=CjwKCAiAxp-ABhALEiwAXm6Iye_9geJZ80gEQU3-OG6-byzj4giWEw4jXqrd-oPDXxQik2GzPtmsxhoCzY0QAvD_BwE) or [Journal of Animal Science](https://academic.oup.com/jas).
+  
+  3. *Data:* This section provides the layout of all raw data files used in a project. In addition, data preparation and cleaning of raw data files is performed in this section, with the intent of producing files that are fully prepared for Chapter 4 (Methods) of each part. All data manipulation and cleansing code will be shown and annotated in a reproducible way.
+  
+  4. *Methods:* The "Methods" chapter builds on the "Data" chapter by describing the statistical analysis and data science methodology of each project. In general, this section will serve as an outline for the following "Results" chapter, and will resemble materials and methods sections of scientific manuscripts. However, the code used in the analysis will be provided directly in the text of this chapter, which differs from text geared for scientific publication.
+  
+  5. *Results:* Presentation of results from the "Methods" chapter. These results will be presented in the form of tables, figures, or simply written in the text. All tables and figures will be generated using R.
+  
+  6. *Discussion:* Discussion of the results presented in the previous chapter, with emphasis on the implications of these findings in the commercial swine industry. This chapter will be written in a form similar to discussion sections of scientific manuscripts. General conclusions and industry implications will be provided at the end of this chapter.
+  
+  7. *Appendices:* Each part in this book will have at least one Appendix, which will house any code, tables, and figures that were not applicable or disrupted the flow of the to main text.
