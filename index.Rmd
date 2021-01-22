@@ -6,7 +6,7 @@ site: bookdown::bookdown_site
 output: 
   bookdown::gitbook: default
 documentclass: book
-github-repo: cjgwx7/phd-research
+github-repo: cjgwx7/phd-bookdown
 description: "Experiments using advanced analytical methods for description, prediction, and prescription of data and outcomes within the United States commercial swine industry."
 ---
 
