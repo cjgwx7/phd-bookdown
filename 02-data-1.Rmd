@@ -625,6 +625,57 @@ head(map_intmd)
 
 Above, the error in the POS column was fixed by changing the range of genomic positions to a single negative integer that corresponded to the first value in the range of genomic positions $\times$ -1. This affected only 19 out of 49,991 SNP positions (0.04%). A space-separated text version of ```map_intmd``` MAP file will be used in all subsequent selection mapping analyses.
 
+```{r save-map-ped-plus, echo=FALSE}
+setwd('C:/Users/cgroh/OneDrive/Desktop/PhD/Project 1 - GSM/Intermediate Data')
+
+### ped_intmd.txt
+fwrite(ped_intmd,
+       file = "ped_intmd.txt",
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       na = "NA",
+       quote = FALSE)
+
+### ped_intmd.csv w/ headers
+fwrite(ped_intmd,
+       file = "ped_intmd.csv",
+       sep = ",",
+       row.names = FALSE,
+       col.names = TRUE,
+       na = "NA",
+       quote = FALSE)
+
+### ped_plus_intmd.txt
+fwrite(ped_plus_intmd,
+       file = "ped_plus_intmd.txt",
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       na = "NA",
+       quote = TRUE)
+
+### ped_plus_intmd.csv w/ headers
+fwrite(ped_plus_intmd,
+       file = "ped_plus_intmd.csv",
+       sep = ",",
+       row.names = FALSE,
+       col.names = TRUE,
+       na = "NA",
+       quote = FALSE)
+
+### map_intmd.txt
+fwrite(map_intmd,
+       file = "map_intmd.txt",
+       sep = " ",
+       row.names = FALSE,
+       col.names = TRUE,
+       na = "NA",
+       quote = FALSE)
+
+rm(error_rows, genotype, genotype_tidy, map, map_tidy, ped, ped_tidy, ped_plus_tidy, pig_info)
+```
+
 ### Genotype File
 
 The next portion of this section will be centered around preparing the genotype files for the selection mapping analyses. Due to the tremendous size of these files, data manipulation was performed using MU Animal Genomics resources, namely a Linux machine known as MUG06. As mentioned in Section 3.5.2, a multitude of programs will be used on MUG06 (R, Python, Bash, BLUPF90, and PLINK). Scripts utilized in this process can be extremely long and rather detailed; thus, examples of each script will be shown in this section and the entire scripts will be shown in \@ref(part-i-generation-proxy-selection-mapping).
@@ -637,7 +688,7 @@ Up to 3 different analyses will be run as a part of the greater selection mappin
    2. Bivariate Variance Component Estimation
    3. Genome-wide Association Analyses
    
-At this point, I am not going to discuss the nature of these analyses any further (that will be the subject of Chapter 4). Different subgroups of pigs will be required for different analyses ( and some subgroups may have multiple types of analyses run on them). These subgroups are defined in the table below:
+At this point, I am not going to discuss the nature of these analyses any further (that will be the subject of Chapter 4). Different subgroups of pigs will be required for different analyses (and some subgroups may have multiple types of analyses run on them). These subgroups are defined in the table below:
 
 ```{r subgroups, echo=FALSE}
 tibble(Subgroup = c(1:12),
@@ -651,6 +702,7 @@ tibble(Subgroup = c(1:12),
          caption = "Description of subgroups.")
 ```
 
+From this point on, all data preparation and carpentry was performed on a server hosted at the Animal Science Research Center on The University of Missouri campus. Due to the size of the genotype files, increased computing power was required (at least more than what my local machine can handle). The name and operating system of the server is MUG06 and [CentOS 6.7](https://www.centos.org/), respectively. After the genotype file was copied to MUG06 using [FileZilla](https://filezilla-project.org/), a [Python](https://www.python.org/) script was invoked to separate the genotype file into the subgroups in the above table. An example of that script is shown below, and the entire script is documented in \@ref(python-scripts):
 
 
 
