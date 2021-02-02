@@ -678,7 +678,7 @@ rm(error_rows, genotype, genotype_tidy, map, map_tidy, ped, ped_tidy, ped_plus_t
 
 ### Genotype File
 
-The next portion of this section will be centered around preparing the genotype files for the selection mapping analyses. Due to the tremendous size of these files, data manipulation was performed using MU Animal Genomics resources, namely a Linux machine known as MUG06. As mentioned in Section 3.5.2, a multitude of programs will be used on MUG06 (R, Python, Bash, BLUPF90, and PLINK). Scripts utilized in this process can be extremely long and rather detailed; thus, examples of each script will be shown in this section and the entire scripts will be shown in \@ref(part-i-generation-proxy-selection-mapping).
+The next portion of this section will be centered around preparing the genotype files for the selection mapping analyses. From this point on, all data preparation and carpentry was performed on a server hosted at the Animal Science Research Center on The University of Missouri campus. Due to the size of the genotype files, increased computing power was required (at least more than what my local machine can handle). The name and operating system of the server is MUG06 and [CentOS 6.7](https://www.centos.org/), respectively. As mentioned in Section 3.5.2, a multitude of programs will be used on MUG06. Scripts utilized in this process can be extremely long and rather detailed; thus, examples of each script will be shown in this section and the entire scripts will be shown in the Appendix.
 
 #### Subgroups
 
@@ -702,12 +702,90 @@ tibble(Subgroup = c(1:12),
          caption = "Description of subgroups.")
 ```
 
-From this point on, all data preparation and carpentry was performed on a server hosted at the Animal Science Research Center on The University of Missouri campus. Due to the size of the genotype files, increased computing power was required (at least more than what my local machine can handle). The name and operating system of the server is MUG06 and [CentOS 6.7](https://www.centos.org/), respectively. After the genotype file was copied to MUG06 using [FileZilla](https://filezilla-project.org/), a [Python](https://www.python.org/) script was invoked to separate the genotype file into the subgroups in the above table. An example of that script is shown below, and the entire script is documented in \@ref(python-scripts):
+After the genotype file was copied to MUG06 using [FileZilla](https://filezilla-project.org/), a [Python](https://www.python.org/) script was invoked to separate the genotype file into the subgroups in the above table. An example of that script is shown below for subgroup 1, and the entire script and log is documented in \@ref(createsubgroups):
 
+```{python create-subsets-ex, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/python/CreateSubgroups.py
 
+import pandas as pd
 
+### Specify paths to necessary files for import
+path_genotypes = "../../raw_data/level1/genotypes.txt"
+path_ped_plus_intmd = "../../intmd/pedigree_map/ped_plus_intmd.txt"
 
+### Specify paths for file export
+path_s1 = "../../raw_data/level2/c.txt"
 
+### Specify column names for input files
+colnames_genotypes = ['PigID', 'SNPs']
+colnames_ped_plus_intmd = ['PigID', 'Line']
 
+### Read in genotype file and replace commas between SNP haplotypes
+genotypes = pd.read_csv(path_genotypes, 
+			sep = "\t", 
+			names = colnames_genotypes, 
+			header = None)
 
+genotypes = genotypes.replace(',',
+			      '', 
+			      regex=True)
 
+### Read in ped_plus_intmd
+ped_plus_intmd = pd.read_csv(path_ped_plus_intmd, 
+			     sep = " ", 
+			     names = colnames_ped_plus_intmd, 
+			     header = None, 
+			     usecols = [0, 6])
+
+print("Data Imported Successfully")
+
+### Merge genotype and ped_plus_intmd to connect PigID to Line information
+genotypes_plus = pd.merge(genotypes, 
+	      		  ped_plus_intmd, 
+	       		  how = 'left', 
+	       		  on = 'PigID')
+genotypes_plus = genotypes_plus[['PigID', 'Line']]
+genotypes_plus = genotypes_plus.dropna()
+
+### Create subgroups
+
+## Crossbred
+c = genotypes_plus[genotypes_plus.Line == 9006]
+
+print("Subgroups Created Successfully")
+
+### Merge subgroup IDs with genotypes
+c = pd.merge(c['PigID'], genotypes, how='left', on='PigID')
+
+print("Genotype File Merged Successfully")
+
+### Check file length (Number of pigs before quality control)
+print("The length of Subset 1 is:", len(c))
+
+print("Starting output of subgroup files")
+
+c.to_csv(path_s1, sep = "\t", index = False, header = False)
+
+print("Genotype files for each subgroup successfully written")
+```
+
+[RenumF90](http://nce.ads.uga.edu/wiki/doku.php?id=readme.renumf90) will be the next program that each subgroup file will be run through in order to prepare them for PreGSF90, which will save the files in [PLINK format (MAP and PED)](https://zzz.bwh.harvard.edu/plink/data.shtml). However, there is a limit on the number of genotyped animals that can be input into a BLUPF90 program. Thus, each of the subgroup files that are greater than 25,000 will have to be split into smaller batches (everything but subgroups 1 through 4). The following [bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) script, \@ref(batch), will accomplish this and all subgroup and batch files will be output as fixed-width for BLUPF90 to properly read them:
+
+```{bash batch-ex, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/batch.sh
+
+### Create fixed-width BLUPF90 genotype file for each subgroup
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/c.txt > ../../raw_data/level2/c.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/cdly.txt > ../../raw_data/level2/cdly.txt_fw
+
+### Delete old .txt files
+rm ../../raw_data/level2/*.txt
+
+### Split files into batches of < 25,000 observations each
+### Subgroup 1
+cp ../../raw_data/level2/c.txt_fw ../../raw_data/level3/c/c.aa
+
+### Subgroup 12
+split --verbose ../../raw_data/level2/cdly.txt_fw -l21015 cdly.
+mv cdly* ../../raw_data/level3/cdly/
+```

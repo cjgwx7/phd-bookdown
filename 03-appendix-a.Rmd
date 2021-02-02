@@ -1,7 +1,290 @@
 # (APPENDIX) Appendix {-}
 
-# Remote Computing
+# Python Scripts
 
-## Part I: Generation Proxy Selection Mapping
+## CreateSubgroups.py {#createsubgroups}
 
-### Python Scripts
+**Script:**
+
+```{python create-subgroups, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/python/CreateSubgroups.py
+
+import pandas as pd
+
+### Specify paths to necessary files for import
+path_genotypes = "../../raw_data/level1/genotypes.txt"
+path_ped_plus_intmd = "../../intmd/pedigree_map/ped_plus_intmd.txt"
+
+### Specify paths for file export
+path_s1 = "../../raw_data/level2/c.txt"
+path_s2 = "../../raw_data/level2/d.txt"
+path_s3 = "../../raw_data/level2/l.txt"
+path_s4 = "../../raw_data/level2/y.txt"
+path_s5 = "../../raw_data/level2/cd.txt"
+path_s6 = "../../raw_data/level2/cl.txt"
+path_s7 = "../../raw_data/level2/cy.txt"
+path_s8 = "../../raw_data/level2/dl.txt"
+path_s9 = "../../raw_data/level2/dy.txt"
+path_s10 = "../../raw_data/level2/ly.txt"
+path_s11 = "../../raw_data/level2/dly.txt"
+path_s12 = "../../raw_data/level2/cdly.txt"
+ 
+### Specify column names for input files
+colnames_genotypes = ['PigID', 'SNPs']
+colnames_ped_plus_intmd = ['PigID', 'Line']
+
+### Read in genotype file and replace commas between SNP haplotypes
+genotypes = pd.read_csv(path_genotypes, 
+			sep = "\t", 
+			names = colnames_genotypes, 
+			header = None)
+
+genotypes = genotypes.replace(',',
+			      '', 
+			      regex=True)
+
+### Read in ped_plus_intmd
+ped_plus_intmd = pd.read_csv(path_ped_plus_intmd, 
+			     sep = " ", 
+			     names = colnames_ped_plus_intmd, 
+			     header = None, 
+			     usecols = [0, 6])
+
+print("Data Imported Successfully")
+
+### Merge genotype and ped_plus_intmd to connect PigID to Line information
+genotypes_plus = pd.merge(genotypes, 
+	      		  ped_plus_intmd, 
+	       		  how = 'left', 
+	       		  on = 'PigID')
+genotypes_plus = genotypes_plus[['PigID', 'Line']]
+genotypes_plus = genotypes_plus.dropna()
+
+### Create subgroups
+
+## Crossbred
+c = genotypes_plus[genotypes_plus.Line == 9006]
+
+## Duroc
+d = genotypes_plus[genotypes_plus.Line == 1006]
+
+## Landrace
+l = genotypes_plus[genotypes_plus.Line == 10]
+
+## Yorkshire
+y = genotypes_plus[genotypes_plus.Line == 11]
+
+## Crossbred and Duroc
+cd = genotypes_plus
+cd['f'] = cd.Line.isin([9006, 1006])
+cd = cd[cd.f == True]
+cd = cd.drop(columns=['f'])
+
+## Crossbred and Landrace
+cl = genotypes_plus
+cl['f'] = cl.Line.isin([9006, 10])
+cl = cl[cl.f == True]
+cl = cl.drop(columns=['f'])
+
+## Crossbred and Yorkshire 
+cy = genotypes_plus
+cy['f'] = cy.Line.isin([9006, 11])
+cy = cy[cy.f == True]
+cy = cy.drop(columns=['f'])
+
+## Duroc and Landrace
+dl = genotypes_plus
+dl['f'] = dl.Line.isin([1006, 10])
+dl = dl[dl.f == True]
+dl = dl.drop(columns=['f'])
+
+## Duroc and Yorkshire
+dy = genotypes_plus
+dy['f'] = dy.Line.isin([1006, 11])
+dy = dy[dy.f == True]
+dy = dy.drop(columns=['f'])
+
+## Landrace and Yorkshire
+ly = genotypes_plus
+ly['f'] = ly.Line.isin([10, 11])
+ly = ly[ly.f == True]
+ly = ly.drop(columns=['f'])
+
+## Duroc, Landrace, and Yorkshire
+dly = genotypes_plus
+dly['f'] = dly.Line.isin([1006, 10, 11])
+dly = dly[dly.f == True]
+dly = dly.drop(columns=['f'])
+
+## Crossbred, Duroc, Landrace, and Yorkshire
+cdly = genotypes_plus
+cdly['f'] = cdly.Line.isin([9006, 1006, 10, 11])
+cdly = cdly[cdly.f == True]
+cdly = cdly.drop(columns=['f'])
+
+print("Subgroups Created Successfully")
+
+### Merge subgroup IDs with genotypes
+c = pd.merge(c['PigID'], genotypes, how='left', on='PigID')
+d = pd.merge(d['PigID'], genotypes, how='left', on='PigID')
+l = pd.merge(l['PigID'], genotypes, how='left', on='PigID')
+y = pd.merge(y['PigID'], genotypes, how='left', on='PigID')
+cd = pd.merge(cd['PigID'], genotypes, how='left', on='PigID')
+cl = pd.merge(cl['PigID'], genotypes, how='left', on='PigID')
+cy = pd.merge(cy['PigID'], genotypes, how='left', on='PigID')
+dl = pd.merge(dl['PigID'], genotypes, how='left', on='PigID')
+dy = pd.merge(dy['PigID'], genotypes, how='left', on='PigID')
+ly = pd.merge(ly['PigID'], genotypes, how='left', on='PigID')
+dly = pd.merge(dly['PigID'], genotypes, how='left', on='PigID')
+cdly = pd.merge(cdly['PigID'], genotypes, how='left', on='PigID')
+
+print("Genotype File Merged Successfully")
+
+### Check file length (Number of pigs before quality control)
+print("The length of Subgroup 1 is:", len(c))
+print("The length of Subgroup 2 is:", len(d))
+print("The length of Subgroup 3 is:", len(l))
+print("The length of Subgroup 4 is:", len(y))
+print("The length of Subgroup 5 is:", len(cd))
+print("The length of Subgroup 6 is:", len(cl))
+print("The length of Subgroup 7 is:", len(cy))
+print("The length of Subgroup 8 is:", len(dl))
+print("The length of Subgroup 9 is:", len(dy))
+print("The length of Subgroup 10 is:", len(ly))
+print("The length of Subgroup 11 is:", len(dly))
+print("The length of Subgroup 12 is:", len(cdly))
+
+print("Starting output of subgroup files")
+
+c.to_csv(path_s1, sep = "\t", index = False, header = False)
+d.to_csv(path_s2, sep = "\t", index = False, header = False)
+l.to_csv(path_s3, sep = "\t", index = False, header = False)
+y.to_csv(path_s4, sep = "\t", index = False, header = False)
+cd.to_csv(path_s5, sep = "\t", index = False, header = False)
+cl.to_csv(path_s6, sep = "\t", index = False, header = False)
+cy.to_csv(path_s7, sep = "\t", index = False, header = False)
+dl.to_csv(path_s8, sep = "\t", index = False, header = False)
+dy.to_csv(path_s9, sep = "\t", index = False, header = False)
+ly.to_csv(path_s10, sep = "\t", index = False, header = False)
+dly.to_csv(path_s11, sep = "\t", index = False, header = False)
+cdly.to_csv(path_s12, sep = "\t", index = False, header = False)
+
+print("Genotype files for each subgroup successfully written")
+```
+
+**Log:**
+
+```{}
+Data Imported Successfully
+Subgroups Created Successfully
+Genotype File Merged Successfully
+The length of Subgroup 1 is: 8532
+The length of Subgroup 2 is: 16802
+The length of Subgroup 3 is: 19342
+The length of Subgroup 4 is: 18368
+The length of Subgroup 5 is: 25334
+The length of Subgroup 6 is: 27874
+The length of Subgroup 7 is: 26900
+The length of Subgroup 8 is: 36144
+The length of Subgroup 9 is: 35170
+The length of Subgroup 10 is: 37710
+The length of Subgroup 11 is: 54512
+The length of Subgroup 12 is: 63044
+Starting output of subgroup files
+Genotype files for each subgroup successfully written
+```
+
+# Bash Scripts
+
+## batch.sh {#batch}
+
+**Script:**
+
+```{bash batch, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/batch.sh
+
+### Create fixed-width BLUPF90 genotype file for each subgroup
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/c.txt > ../../raw_data/level2/c.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/d.txt > ../../raw_data/level2/d.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/l.txt > ../../raw_data/level2/l.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/y.txt > ../../raw_data/level2/y.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/cd.txt > ../../raw_data/level2/cd.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/cl.txt > ../../raw_data/level2/cl.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/cy.txt > ../../raw_data/level2/cy.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/dl.txt > ../../raw_data/level2/dl.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/dy.txt > ../../raw_data/level2/dy.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/ly.txt > ../../raw_data/level2/ly.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/dly.txt > ../../raw_data/level2/dly.txt_fw
+awk -F ' ' '{printf "%-15s%-50000s\n",$1,$2}' ../../raw_data/level2/cdly.txt > ../../raw_data/level2/cdly.txt_fw
+
+### Delete old .txt files
+rm ../../raw_data/level2/*.txt
+
+### Split files into batches of < 25,000 observations each
+### Subgroup 1
+cp ../../raw_data/level2/c.txt_fw ../../raw_data/level3/c/c.aa
+
+### Subgroup 2
+cp ../../raw_data/level2/d.txt_fw ../../raw_data/level3/d/d.aa
+
+### Subgroup 3
+cp ../../raw_data/level2/l.txt_fw ../../raw_data/level3/l/l.aa
+
+### Subgroup 4
+cp ../../raw_data/level2/y.txt_fw ../../raw_data/level3/y/y.aa
+
+### Subgroup 5
+split --verbose ../../raw_data/level2/cd.txt_fw -l12667 cd.
+mv cd* ../../raw_data/level3/cd/
+
+### Subgroup 6
+split --verbose ../../raw_data/level2/cl.txt_fw -l13937 cl.
+mv cl* ../../raw_data/level3/cl/
+
+### Subgroup 7
+split --verbose ../../raw_data/level2/cy.txt_fw -l13450 cy.
+mv cy* ../../raw_data/level3/cy/
+
+### Subgroup 8
+split --verbose ../../raw_data/level2/dl.txt_fw -l18072 dl.
+mv dl* ../../raw_data/level3/dl/
+
+### Subgroup 9
+split --verbose ../../raw_data/level2/dy.txt_fw -l17585 dy.
+mv dy* ../../raw_data/level3/dy/
+
+### Subgroup 10
+split --verbose ../../raw_data/level2/ly.txt_fw -l18855 ly.
+mv ly* ../../raw_data/level3/ly/
+
+### Subgroup 11
+split --verbose ../../raw_data/level2/dly.txt_fw -l18171 dly.
+mv dly* ../../raw_data/level3/dly/
+
+### Subgroup 12
+split --verbose ../../raw_data/level2/cdly.txt_fw -l21015 cdly.
+mv cdly* ../../raw_data/level3/cdly/
+```
+
+**Log:**
+
+```{}
+creating file `cd.aa'
+creating file `cd.ab'
+creating file `cl.aa'
+creating file `cl.ab'
+creating file `cy.aa'
+creating file `cy.ab'
+creating file `dl.aa'
+creating file `dl.ab'
+creating file `dy.aa'
+creating file `dy.ab'
+creating file `ly.aa'
+creating file `ly.ab'
+creating file `dly.aa'
+creating file `dly.ab'
+creating file `dly.ac'
+creating file `cdly.aa'
+creating file `cdly.ab'
+creating file `cdly.ac'
+```

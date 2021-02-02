@@ -10,9 +10,9 @@ github-repo: cjgwx7/phd-bookdown
 description: "Experiments using advanced analytical methods for description, prediction, and prescription of data and outcomes within the United States commercial swine industry."
 ---
 
-```{r, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
-  warning = FALSE, message = FALSE
+  warning = FALSE, message = FALSE, python.reticulate = FALSE
 )
 ```
 
