@@ -288,3 +288,392 @@ creating file `cdly.aa'
 creating file `cdly.ab'
 creating file `cdly.ac'
 ```
+
+## renum.sh {#renum}
+
+**Script:**
+
+```{bash renum, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/renum.sh
+
+### Copy necessary files into current directory
+cp ../../intmd/pedigree_map/{ped_plus_intmd.txt,ped_intmd.txt,map_intmd.txt} .
+
+### Copy genotype file into current directory
+cp ../../raw_data/level3/c/c.aa .
+
+### Run renumF90
+renumf90 ../blupf90/renum.c_aa
+
+### Save PLINK PED and MAP files
+preGSf90 renf90.par
+
+### Move important files to new location
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped c.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/c/
+
+### Remove unnecessary files
+rm c.aa renf90.tables renf90.fields renf90.par
+
+### Repeat above for each subgroup/batch combination
+
+### Subgroup 2
+cp ../../raw_data/level3/d/d.aa .
+renumf90 ../blupf90/renum.d_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped d.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/d/
+rm d.aa renf90.tables renf90.fields renf90.par
+
+### Subgroup 3
+cp ../../raw_data/level3/l/l.aa .
+renumf90 ../blupf90/renum.l_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped l.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/l/
+rm l.aa renf90.tables renf90.fields renf90.par
+
+### Subgroup 4
+cp ../../raw_data/level3/y/y.aa .
+renumf90 ../blupf90/renum.y_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped y.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/y/
+rm y.aa renf90.tables renf90.fields renf90.par
+
+### Subgroup 5
+cp ../../raw_data/level3/cd/cd.aa .
+renumf90 ../blupf90/renum.cd_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cd.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cd/aa/
+rm cd.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/cd/cd.ab .
+renumf90 ../blupf90/renum.cd_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cd.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cd/ab/
+rm cd.ab renf90.tables renf90.fields renf90.par
+
+### Subgroup 6
+cp ../../raw_data/level3/cl/cl.aa .
+renumf90 ../blupf90/renum.cl_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cl.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cl/aa/
+rm cl.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/cl/cl.ab .
+renumf90 ../blupf90/renum.cl_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cl.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cl/ab/
+rm cl.ab renf90.tables renf90.fields renf90.par
+
+### Subgroup 7
+cp ../../raw_data/level3/cy/cy.aa .
+renumf90 ../blupf90/renum.cy_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cy.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cy/aa/
+rm cy.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/cy/cy.ab .
+renumf90 ../blupf90/renum.cy_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cy.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cy/ab/
+rm cy.ab renf90.tables renf90.fields renf90.par
+
+### Subgroup 8
+cp ../../raw_data/level3/dl/dl.aa .
+renumf90 ../blupf90/renum.dl_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped dl.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/dl/aa/
+rm dl.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/dl/dl.ab .
+renumf90 ../blupf90/renum.dl_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped dl.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/dl/ab/
+rm dl.ab renf90.tables renf90.fields renf90.par
+
+### Subgroup 9
+cp ../../raw_data/level3/dy/dy.aa .
+renumf90 ../blupf90/renum.dy_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped dy.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/dy/aa/
+rm dy.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/dy/dy.ab .
+renumf90 ../blupf90/renum.dy_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped dy.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/dy/ab/
+rm dy.ab renf90.tables renf90.fields renf90.par
+
+### Subgroup 10
+cp ../../raw_data/level3/ly/ly.aa .
+renumf90 ../blupf90/renum.ly_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped ly.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/ly/aa/
+rm ly.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/ly/ly.ab .
+renumf90 ../blupf90/renum.ly_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped ly.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/ly/ab/
+rm ly.ab renf90.tables renf90.fields renf90.par
+
+### Subgroup 11
+cp ../../raw_data/level3/dly/dly.aa .
+renumf90 ../blupf90/renum.dly_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped dly.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/dly/aa/
+rm dly.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/dly/dly.ab .
+renumf90 ../blupf90/renum.dly_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped dly.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/dly/ab/
+rm dly.ab renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/dly/dly.ac .
+renumf90 ../blupf90/renum.dly_ac
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped dly.ac_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/dly/ac/
+rm dly.ac renf90.tables renf90.fields renf90.par
+
+### Subgroup 12
+cp ../../raw_data/level3/cdly/cdly.aa .
+renumf90 ../blupf90/renum.cdly_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cdly.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cdly/aa/
+rm cdly.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/cdly/cdly.ab .
+renumf90 ../blupf90/renum.cdly_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cdly.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cdly/ab/
+rm cdly.ab renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/cdly/cdly.ac .
+renumf90 ../blupf90/renum.cdly_ac
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cdly.ac_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cdly/ac/
+rm cdly.ac renf90.tables renf90.fields renf90.par
+
+### Remove unnecessary files
+rm ped_plus_intmd.txt ped_intmd.txt map_intmd.txt
+```
+
+## ProcessPPlinkF90.sh {#processplinkf90}
+
+**Script:**
+
+```{bash processplinkf90, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/ProcessPlinkF90.sh
+
+### Subgroup 1
+### Remove extra blank column
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/c/toPlink.ped > ../../raw_data/level4/c/toPlink_v2.ped
+
+### Extract genotypes
+cut -d ' ' -f 7- ../../raw_data/level4/c/toPlink_v2.ped > ../../raw_data/level4/c/toPlink_geno.ped
+
+### Replace renumbered IDs with actual IDs
+Rscript ../r/ProcessPlinkF90/c_aa.R
+
+### Column bind columns 1-6 and the genotypes
+paste -d ' ' ../../raw_data/level4/c/c_aa.fam ../../raw_data/level4/c/toPlink_geno.ped > ../../raw_data/level6/c.ped
+
+### Subgroup 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/d/toPlink.ped > ../../raw_data/level4/d/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/d/toPlink_v2.ped > ../../raw_data/level4/d/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/d_aa.R
+
+paste -d ' ' ../../raw_data/level4/d/d_aa.fam ../../raw_data/level4/d/toPlink_geno.ped > ../../raw_data/level6/d.ped
+
+### Subgroup 3
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/l/toPlink.ped > ../../raw_data/level4/l/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/l/toPlink_v2.ped > ../../raw_data/level4/l/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/l_aa.R
+
+paste -d ' ' ../../raw_data/level4/l/l_aa.fam ../../raw_data/level4/l/toPlink_geno.ped > ../../raw_data/level6/l.ped
+
+### Subgroup 4
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/y/toPlink.ped > ../../raw_data/level4/y/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/y/toPlink_v2.ped > ../../raw_data/level4/y/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/y_aa.R
+
+paste -d ' ' ../../raw_data/level4/y/y_aa.fam ../../raw_data/level4/y/toPlink_geno.ped > ../../raw_data/level6/y.ped
+
+### Subgroup 5
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cd/aa/toPlink.ped > ../../raw_data/level4/cd/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cd/aa/toPlink_v2.ped > ../../raw_data/level4/cd/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cd_aa.R
+
+paste -d ' ' ../../raw_data/level4/cd/aa/cd_aa.fam ../../raw_data/level4/cd/aa/toPlink_geno.ped > ../../raw_data/level5/cd/cd_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cd/ab/toPlink.ped > ../../raw_data/level4/cd/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cd/ab/toPlink_v2.ped > ../../raw_data/level4/cd/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cd_ab.R
+
+paste -d ' ' ../../raw_data/level4/cd/ab/cd_ab.fam ../../raw_data/level4/cd/ab/toPlink_geno.ped > ../../raw_data/level5/cd/cd_ab.ped
+
+cat ../../raw_data/level5/cd/cd_aa.ped ../../raw_data/level5/cd/cd_ab.ped > ../../raw_data/level6/cd.ped
+
+### Subgroup 6
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cl/aa/toPlink.ped > ../../raw_data/level4/cl/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cl/aa/toPlink_v2.ped > ../../raw_data/level4/cl/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cl_aa.R
+
+paste -d ' ' ../../raw_data/level4/cl/aa/cl_aa.fam ../../raw_data/level4/cl/aa/toPlink_geno.ped > ../../raw_data/level5/cl/cl_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cl/ab/toPlink.ped > ../../raw_data/level4/cl/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cl/ab/toPlink_v2.ped > ../../raw_data/level4/cl/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cl_ab.R
+
+paste -d ' ' ../../raw_data/level4/cl/ab/cl_ab.fam ../../raw_data/level4/cl/ab/toPlink_geno.ped > ../../raw_data/level5/cl/cl_ab.ped
+
+cat ../../raw_data/level5/cl/cl_aa.ped ../../raw_data/level5/cl/cl_ab.ped > ../../raw_data/level6/cl.ped
+
+### Subgroup 7
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cy/aa/toPlink.ped > ../../raw_data/level4/cy/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cy/aa/toPlink_v2.ped > ../../raw_data/level4/cy/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cy_aa.R
+
+paste -d ' ' ../../raw_data/level4/cy/aa/cy_aa.fam ../../raw_data/level4/cy/aa/toPlink_geno.ped > ../../raw_data/level5/cy/cy_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cy/ab/toPlink.ped > ../../raw_data/level4/cy/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cy/ab/toPlink_v2.ped > ../../raw_data/level4/cy/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cy_ab.R
+
+paste -d ' ' ../../raw_data/level4/cy/ab/cy_ab.fam ../../raw_data/level4/cy/ab/toPlink_geno.ped > ../../raw_data/level5/cy/cy_ab.ped
+
+cat ../../raw_data/level5/cy/cy_aa.ped ../../raw_data/level5/cy/cy_ab.ped > ../../raw_data/level6/cy.ped
+
+### Subgroup 8
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/dl/aa/toPlink.ped > ../../raw_data/level4/dl/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/dl/aa/toPlink_v2.ped > ../../raw_data/level4/dl/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/dl_aa.R
+
+paste -d ' ' ../../raw_data/level4/dl/aa/dl_aa.fam ../../raw_data/level4/dl/aa/toPlink_geno.ped > ../../raw_data/level5/dl/dl_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/dl/ab/toPlink.ped > ../../raw_data/level4/dl/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/dl/ab/toPlink_v2.ped > ../../raw_data/level4/dl/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/dl_ab.R
+
+paste -d ' ' ../../raw_data/level4/dl/ab/dl_ab.fam ../../raw_data/level4/dl/ab/toPlink_geno.ped > ../../raw_data/level5/dl/dl_ab.ped
+
+cat ../../raw_data/level5/dl/dl_aa.ped ../../raw_data/level5/dl/dl_ab.ped > ../../raw_data/level6/dl.ped
+
+### Subgroup 9
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/dy/aa/toPlink.ped > ../../raw_data/level4/dy/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/dy/aa/toPlink_v2.ped > ../../raw_data/level4/dy/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/dy_aa.R
+
+paste -d ' ' ../../raw_data/level4/dy/aa/dy_aa.fam ../../raw_data/level4/dy/aa/toPlink_geno.ped > ../../raw_data/level5/dy/dy_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/dy/ab/toPlink.ped > ../../raw_data/level4/dy/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/dy/ab/toPlink_v2.ped > ../../raw_data/level4/dy/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/dy_ab.R
+
+paste -d ' ' ../../raw_data/level4/dy/ab/dy_ab.fam ../../raw_data/level4/dy/ab/toPlink_geno.ped > ../../raw_data/level5/dy/dy_ab.ped
+
+cat ../../raw_data/level5/dy/dy_aa.ped ../../raw_data/level5/dy/dy_ab.ped > ../../raw_data/level6/dy.ped
+
+### Subgroup 10
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/ly/aa/toPlink.ped > ../../raw_data/level4/ly/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/ly/aa/toPlink_v2.ped > ../../raw_data/level4/ly/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/ly_aa.R
+
+paste -d ' ' ../../raw_data/level4/ly/aa/ly_aa.fam ../../raw_data/level4/ly/aa/toPlink_geno.ped > ../../raw_data/level5/ly/ly_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/ly/ab/toPlink.ped > ../../raw_data/level4/ly/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/ly/ab/toPlink_v2.ped > ../../raw_data/level4/ly/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/ly_ab.R
+
+paste -d ' ' ../../raw_data/level4/ly/ab/ly_ab.fam ../../raw_data/level4/ly/ab/toPlink_geno.ped > ../../raw_data/level5/ly/ly_ab.ped
+
+cat ../../raw_data/level5/ly/ly_aa.ped ../../raw_data/level5/ly/ly_ab.ped > ../../raw_data/level6/ly.ped
+
+### Subgroup 11
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/dly/aa/toPlink.ped > ../../raw_data/level4/dly/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/dly/aa/toPlink_v2.ped > ../../raw_data/level4/dly/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/dly_aa.R
+
+paste -d ' ' ../../raw_data/level4/dly/aa/dly_aa.fam ../../raw_data/level4/dly/aa/toPlink_geno.ped > ../../raw_data/level5/dly/dly_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/dly/ab/toPlink.ped > ../../raw_data/level4/dly/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/dly/ab/toPlink_v2.ped > ../../raw_data/level4/dly/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/dly_ab.R
+
+paste -d ' ' ../../raw_data/level4/dly/ab/dly_ab.fam ../../raw_data/level4/dly/ab/toPlink_geno.ped > ../../raw_data/level5/dly/dly_ab.ped
+
+### Batch 3
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/dly/ac/toPlink.ped > ../../raw_data/level4/dly/ac/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/dly/ac/toPlink_v2.ped > ../../raw_data/level4/dly/ac/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/dly_ac.R
+
+paste -d ' ' ../../raw_data/level4/dly/ac/dly_ac.fam ../../raw_data/level4/dly/ac/toPlink_geno.ped > ../../raw_data/level5/dly/dly_ac.ped
+
+cat ../../raw_data/level5/dly/dly_aa.ped ../../raw_data/level5/dly/dly_ab.ped ../../raw_data/level5/dly/dly_ac.ped > ../../raw_data/level6/dly.ped
+
+### Subgroup 12
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cdly/aa/toPlink.ped > ../../raw_data/level4/cdly/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cdly/aa/toPlink_v2.ped > ../../raw_data/level4/cdly/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cdly_aa.R
+
+paste -d ' ' ../../raw_data/level4/cdly/aa/cdly_aa.fam ../../raw_data/level4/cdly/aa/toPlink_geno.ped > ../../raw_data/level5/cdly/cdly_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cdly/ab/toPlink.ped > ../../raw_data/level4/cdly/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cdly/ab/toPlink_v2.ped > ../../raw_data/level4/cdly/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cdly_ab.R
+
+paste -d ' ' ../../raw_data/level4/cdly/ab/cdly_ab.fam ../../raw_data/level4/cdly/ab/toPlink_geno.ped > ../../raw_data/level5/cdly/cdly_ab.ped
+
+### Batch 3
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cdly/ac/toPlink.ped > ../../raw_data/level4/cdly/ac/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cdly/ac/toPlink_v2.ped > ../../raw_data/level4/cdly/ac/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cdly_ac.R
+
+paste -d ' ' ../../raw_data/level4/cdly/ac/cdly_ac.fam ../../raw_data/level4/cdly/ac/toPlink_geno.ped > ../../raw_data/level5/cdly/cdly_ac.ped
+
+cat ../../raw_data/level5/cdly/cdly_aa.ped ../../raw_data/level5/cdly/cdly_ab.ped ../../raw_data/level5/cdly/cdly_ac.ped > ../../raw_data/level6/cdly.ped
+```
+
+
+
+
+
+
+
+

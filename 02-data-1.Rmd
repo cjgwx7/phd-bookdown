@@ -495,7 +495,8 @@ ped_plus_tidy <- ped_plus_tidy %>% extract(BirthDate,
                          dplyr::mutate(Day = '01') %>% 
 ### Change BirthDate to variable type Date
                          dplyr::mutate(BirthDate = ymd(paste(Year,'-',Month,'-',Day, sep = ""))) %>%
-                         select(PigID:Year, BirthLitterID:CurrentSiteCode)
+                         select(PigID:Year, Gender:CurrentSiteCode) %>%
+                         rename(Sex = Gender)
 ```
 
 Now, pedigree age can be calculated. Pedigree age (**AGE**) is defined as the difference between each pig's birth month and January 2006. The selection of January 2006 as the reference date is arbitrary; however, in this population, the number of pedigree records began to increase steadily around this date (this will be discussed later).
@@ -752,24 +753,74 @@ genotypes_plus = genotypes_plus.dropna()
 ## Crossbred
 c = genotypes_plus[genotypes_plus.Line == 9006]
 
+## Crossbred, Duroc, Landrace, and Yorkshire
+cdly = genotypes_plus
+cdly['f'] = cdly.Line.isin([9006, 1006, 10, 11])
+cdly = cdly[cdly.f == True]
+cdly = cdly.drop(columns=['f'])
+
 print("Subgroups Created Successfully")
 
 ### Merge subgroup IDs with genotypes
 c = pd.merge(c['PigID'], genotypes, how='left', on='PigID')
+cdly = pd.merge(cdly['PigID'], genotypes, how='left', on='PigID')
 
 print("Genotype File Merged Successfully")
 
 ### Check file length (Number of pigs before quality control)
 print("The length of Subset 1 is:", len(c))
+print("The length of Subgroup 12 is:", len(cdly))
 
 print("Starting output of subgroup files")
 
 c.to_csv(path_s1, sep = "\t", index = False, header = False)
+cdly.to_csv(path_s12, sep = "\t", index = False, header = False)
 
 print("Genotype files for each subgroup successfully written")
 ```
 
-[RenumF90](http://nce.ads.uga.edu/wiki/doku.php?id=readme.renumf90) will be the next program that each subgroup file will be run through in order to prepare them for PreGSF90, which will save the files in [PLINK format (MAP and PED)](https://zzz.bwh.harvard.edu/plink/data.shtml). However, there is a limit on the number of genotyped animals that can be input into a BLUPF90 program. Thus, each of the subgroup files that are greater than 25,000 will have to be split into smaller batches (everything but subgroups 1 through 4). The following [bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) script, \@ref(batch), will accomplish this and all subgroup and batch files will be output as fixed-width for BLUPF90 to properly read them:
+#### BLUPF90 to PLINK
+
+[RENUMF90](http://nce.ads.uga.edu/wiki/doku.php?id=readme.renumf90) will be the next program that each subgroup file will be run through in order to prepare them for PREGSF90, which will save the files in [PLINK format (MAP and PED)](https://zzz.bwh.harvard.edu/plink/data.shtml). Before I go any further, I need to explain PLINK PED and MAP files and their format [mainly how it is different than BLUPF90 (\@ref(genotype))]. A PED file contains information about each subject (in our case, each pig) and all of their genotypes. Columns in this file are as shown below:
+
+  1. Family ID (generally the same as individual ID in animals)
+  2. Individual ID
+  3. Paternal ID
+  4. Maternal ID
+  5. Sex (1 = male; 2 = female; other = unknown)
+  6. Phenotype (quantitative; -9 = missing)
+  7. Allele 1 for SNP 1
+  8. Allele 2 for SNP 1
+  9. Columns 7 and 8 are repeated for each SNP
+  
+The below table presents differences between PLINK PED and BLUPF90 genotypes:
+
+```{r blupf90-plink, echo=FALSE}
+tibble(BLUPF90 = c(0, 1, 2, 5),
+       PLINK = c("1 1", "1 2", "2 2", "0 0"),
+       Haplotype = c("AA", "AB", "BB", "missing")) %>%
+  kable(.,
+         row.names = FALSE,
+         align = 'c',
+         caption = "BLUPF90 vs PLINK haplotype format.")
+```
+
+And lastly a screenshot of an example PED file:
+
+![Example of a PLINK PED file, columns 1 to 10.](images/figure_3_1.PNG)
+
+A PLINK MAP file is similar to a BLUPF90 MAP file, with a couple minor differences. Columns in a PLINK MAP file are described below:
+
+  1. Chromosome number
+  2. SNP ID
+  3. Genetic distance (usually 0 in our case)
+  4. Base-pair position
+
+The only major differences between PLINK MAP and BLUPF90 MAP files are the addition of the genetic distance column and the order of the columns. However, the genetic distance column is usually always set to zero in our analyses, as we do not need the column.
+
+![Example of a PLINK MAP file.](images/figure_3_2.PNG)
+
+Now that we have the differences between PLINK and BLUPF90 genotype and map files sorted, we can get back to the preparation of the genotype data. There is a limit on the number of genotyped animals that can be input into a BLUPF90 program. Thus, each of the subgroup files that are greater than 25,000 will have to be split into smaller batches (everything but subgroups 1 through 4). The following [bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) script, \@ref(batch), will accomplish this and all subgroup and batch files will be output as [fixed-width](https://www.softinterface.com/Convert-XLS/Features/Fixed-Width-Text-File-Definition.htm) for BLUPF90 to properly read them:
 
 ```{bash batch-ex, eval=FALSE}
 # /data/cjgwx7/tml_gpsm/scripts/bash/batch.sh
@@ -789,3 +840,237 @@ cp ../../raw_data/level2/c.txt_fw ../../raw_data/level3/c/c.aa
 split --verbose ../../raw_data/level2/cdly.txt_fw -l21015 cdly.
 mv cdly* ../../raw_data/level3/cdly/
 ```
+
+Now, all batch files within each subgroup are in a fixed-width column format and have less than 25,000 observations each. Thus, we are now ready to build the parameter files for renumf90. Each batch file within each sbgroup will be run through renumf90 separately. An example of a renumf90 parameter file (essentially the file that is input into the program), for batch "aa" in subgroup 1 (Crossbred pigs) is presented below:
+
+```{}
+DATAFILE
+ped_plus_intmd.txt
+TRAITS
+14
+FIELDS_PASSED TO OUTPUT
+1
+WEIGHT(S)
+
+RESIDUAL_VARIANCE
+2.0
+EFFECT           # 1st effect: animal
+1 cross alpha
+RANDOM           ## treated as a random effect
+animal
+FILE
+ped_intmd.txt
+FILE_POS
+1 2 3 0 0
+SNP_FILE         ## SNP marker file
+c.aa
+(CO)VARIANCES    ## its variance component
+0.5
+OPTION map_file map_intmd.txt
+OPTION savePLINK
+OPTION no_quality_control
+```
+
+The parameter files for each batch will be incorporated in the following bash script (\@ref(renum); only an example is shown below), named "renum.sh":
+
+```{bash renum-ex, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/renum.sh
+
+### Subgroup 1 
+### Copy necessary files into current directory
+cp ../../intmd/pedigree_map/{ped_plus_intmd.txt,ped_intmd.txt,map_intmd.txt} .
+
+### Copy genotype file into current directory
+cp ../../raw_data/level3/c/c.aa .
+
+### Run renumF90
+renumf90 ../blupf90/renum.c_aa
+
+### Save PLINK PED and MAP files
+preGSf90 renf90.par
+
+### Move important files to new location
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped c.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/c/
+
+### Remove unnecessary files
+rm c.aa renf90.tables renf90.fields renf90.par
+
+### Repeat above for each subgroup/batch combination
+
+### Subgroup 12
+cp ../../raw_data/level3/cdly/cdly.aa .
+renumf90 ../blupf90/renum.cdly_aa
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cdly.aa_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cdly/aa/
+rm cdly.aa renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/cdly/cdly.ab .
+renumf90 ../blupf90/renum.cdly_ab
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cdly.ab_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cdly/ab/
+rm cdly.ab renf90.tables renf90.fields renf90.par
+
+cp ../../raw_data/level3/cdly/cdly.ac .
+renumf90 ../blupf90/renum.cdly_ac
+preGSf90 renf90.par
+mv renf90.dat toPlink.map toPlink.ped renadd01.ped cdly.ac_XrefID sum2pq freqdata.count Gen_call_rate ../../raw_data/level4/cdly/ac/
+rm cdly.ac renf90.tables renf90.fields renf90.par
+
+### Remove unnecessary files
+rm ped_plus_intmd.txt ped_intmd.txt map_intmd.txt
+```
+
+The script above is accomplishing numerous tasks, listed below:
+
+  1. Copy ped_plus_intmd.txt, ped_intmd.txt, and map_intmd.txt files into the current directory (where the renum.sh script is stored and will be run)
+  2. Copy genotype file into the current directory
+  3. Run RENUMF90
+  4. Run PREGSF90, using the renf90.par file generated by RENUMF90
+  5. Move necessary output from PREGSF90 (PLINK files and renumbered pedigree and data files) to the correct subgroup and batch directory in the raw_data folder
+  6. Remove unnecessary output files
+  7. Remove files copied in step 1 from the script directory
+  
+The main file of interest generated from renum.sh is the toPlink.ped file for each batch within subgroup. This is a PED file, as described above. However, there are three issues with these files:
+
+  1. Animal, sire, and dam IDs were renumbered through RENUMF90
+  2. Sex is incomplete
+  3. An extra blank column was added between the first 6 columns and the genotype data
+  
+The following script will fix these errors, along with row-binding each batch file into a single PED file for each subgroup:
+
+```{bash processplinkf90-ex, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/ProcessPlinkF90.sh
+
+### Subgroup 1
+### Remove extra blank column
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/c/toPlink.ped > ../../raw_data/level4/c/toPlink_v2.ped
+
+### Extract genotypes
+cut -d ' ' -f 7- ../../raw_data/level4/c/toPlink_v2.ped > ../../raw_data/level4/c/toPlink_geno.ped
+
+### Replace renumbered IDs with actual IDs
+Rscript ../r/ProcessPlinkF90/c_aa.R
+
+### Column bind columns 1-6 and the genotypes
+paste -d ' ' ../../raw_data/level4/c/c_aa.fam ../../raw_data/level4/c/toPlink_geno.ped > ../../raw_data/level6/c.ped
+
+### Subgroup 12
+### Batch 1
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cdly/aa/toPlink.ped > ../../raw_data/level4/cdly/aa/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cdly/aa/toPlink_v2.ped > ../../raw_data/level4/cdly/aa/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cdly_aa.R
+
+paste -d ' ' ../../raw_data/level4/cdly/aa/cdly_aa.fam ../../raw_data/level4/cdly/aa/toPlink_geno.ped > ../../raw_data/level5/cdly/cdly_aa.ped
+
+### Batch 2
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cdly/ab/toPlink.ped > ../../raw_data/level4/cdly/ab/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cdly/ab/toPlink_v2.ped > ../../raw_data/level4/cdly/ab/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cdly_ab.R
+
+paste -d ' ' ../../raw_data/level4/cdly/ab/cdly_ab.fam ../../raw_data/level4/cdly/ab/toPlink_geno.ped > ../../raw_data/level5/cdly/cdly_ab.ped
+
+### Batch 3
+cut -d ' ' -f 1-6,8- ../../raw_data/level4/cdly/ac/toPlink.ped > ../../raw_data/level4/cdly/ac/toPlink_v2.ped
+cut -d ' ' -f 7- ../../raw_data/level4/cdly/ac/toPlink_v2.ped > ../../raw_data/level4/cdly/ac/toPlink_geno.ped
+
+Rscript ../r/ProcessPlinkF90/cdly_ac.R
+
+paste -d ' ' ../../raw_data/level4/cdly/ac/cdly_ac.fam ../../raw_data/level4/cdly/ac/toPlink_geno.ped > ../../raw_data/level5/cdly/cdly_ac.ped
+
+### Row bind each batch file
+cat ../../raw_data/level5/cdly/cdly_aa.ped ../../raw_data/level5/cdly/cdly_ab.ped ../../raw_data/level5/cdly/cdly_ac.ped > ../../raw_data/level6/cdly.ped
+```
+
+Within the above script, R scripts (Ex: c_aa.R) are utilized to convert renumbered IDs (from BLUPF90) back to the actual pig IDs. An example of this script, for subgroup 1, is shown below:
+
+```{r actual-ids, eval=FALSE}
+library(data.table)
+library(dplyr)
+
+rm(list=ls())
+
+path_ped_plus_intmd <- '../../intmd/pedigree_map/ped_plus_intmd.csv'
+path_fam <- '../../raw_data/level4/c/toPlink.ped' # CHANGE
+path_renped <- '../../raw_data/level4/c/renadd01.ped' # CHANGE
+path_out <- '../../raw_data/level4/c/c_aa.fam' # CHANGE
+
+ped_plus_intmd <- fread(path_ped_plus_intmd,
+		            header = T,
+		            sep = ",",
+		            select = c("PigID", "Sex"))
+
+fam <- fread(path_fam,
+             header = F,
+             sep = " ",
+             col.names = c('FamID', 'PigID', 'SirePigID', 'DamPigID', 'Sex', 'Phenotype'),
+             select = c(1:6)) %>%
+  tibble::rowid_to_column("index")
+
+renped <- fread(path_renped,
+             header=F,
+             sep = " ",
+             select = c(1,10),
+             col.names = c('RenID', 'PigID'))
+
+fam_v2 <- merge(fam, renped,
+                  by.x = "PigID", by.y = "RenID",
+                  all.x = TRUE) %>%
+  select(-PigID) %>%
+  dplyr::rename(PigID = PigID.y)
+
+fam_v3 <- merge(fam_v2, renped,
+                  by.x = "SirePigID", by.y = "RenID",
+                  all.x = TRUE) %>%
+  select(-SirePigID) %>%
+  dplyr::rename(PigID = PigID.x,
+                SirePigID = PigID.y)
+
+fam_v4 <- merge(fam_v3, renped,
+                by.x = "DamPigID", by.y = "RenID",
+                all.x = TRUE) %>%
+  select(-DamPigID) %>%
+  dplyr::rename(PigID = PigID.x,
+                DamPigID = PigID.y)
+
+fam_v4 <- fam_v4[,c(2, 5:7, 3:4, 1)]
+
+fam_v5 <- left_join(fam_v4, ped_plus_intmd, by="PigID") %>%
+  mutate(Sex.x = ifelse(Sex.y == "Male", 1, ifelse(Sex.y == "Female", 2, 0)),
+         FamID = PigID,
+         SirePigID = ifelse(is.na(SirePigID) == T, 0, SirePigID),
+         DamPigID = ifelse(is.na(DamPigID) == T, 0, DamPigID),
+         Phenotype = -9) %>%
+  arrange(index) %>%
+  select(-c(Sex.y, index)) %>%
+  dplyr::rename(Sex = Sex.x)
+
+fwrite(fam_v5, 
+       path_out, 
+       row.names = FALSE, 
+       col.names = FALSE,
+       sep = " ",
+       quote = FALSE)
+```
+
+Again, a lot of different processes are happening in the above two scripts. The following procedure is completed for *i* = aa, ab, or ac (depending on how many batches are in a subgroup) and *j* = c, d, l, y, cd, cl, cy, dl, dy, ly, dly, or cdly:
+
+  1. Column 7 (blank column) is removed from batch file *i* from subgroup file *j*
+  2. Batch file *i* of subgroup file *j* is split into two files (**toPlink_v2.ped**: Columns 1-6; **toPlink_geno.ped**: Columns 7 to end)
+      i) Note: File 1 is in [FAM format of PLINK](http://zzz.bwh.harvard.edu/plink/data.shtml)
+  3. R script for batch file *i* of subgroup *j* matches renumbered IDs with original IDs from the **ped_plus_intmd.txt** file and outputs the FAM file for each *i* of *j*
+  4. The FAM file is "column-binded" with the **toPlink_geno.ped** for batch file *i* from subgroup file *j* to create file **j_i.ped**
+  5. Within subset *j*, files **j_i.ped** are row-binded into one file and stored in "/data/cjgwx7/tml_gpsm/raw_data/level6/" as **j.ped** (the final PED file for each subgroup)
+
+The resulting files from the above procedure are now ready for input into PLINK to create [BED, BIM, and FAM files](http://zzz.bwh.harvard.edu/plink/data.shtml) and for quality control of at the variant (SNP) and pig level. A FAM file is simply the first 6 columns of a PED file, a BIM file is the MAP file for each subgroup (after quality control), and a BED file is the genotype part of a PED file in [binary format](https://en.wikipedia.org/wiki/Binary_file), which uses less memory and is quicker for the computer to read. In addition, we only want to use autosomal SNPs, which are only on chromosomes 1 to 18. The below script performs this conversion and removes the X and Y chromosomes (for subgroup 1):
+
+
+
+
+
+
+
+
+
+
