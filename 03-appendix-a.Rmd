@@ -457,7 +457,7 @@ rm cdly.ac renf90.tables renf90.fields renf90.par
 rm ped_plus_intmd.txt ped_intmd.txt map_intmd.txt
 ```
 
-## ProcessPPlinkF90.sh {#processplinkf90}
+## ProcessPlinkF90.sh {#processplinkf90}
 
 **Script:**
 
@@ -670,10 +670,118 @@ paste -d ' ' ../../raw_data/level4/cdly/ac/cdly_ac.fam ../../raw_data/level4/cdl
 cat ../../raw_data/level5/cdly/cdly_aa.ped ../../raw_data/level5/cdly/cdly_ab.ped ../../raw_data/level5/cdly/cdly_ac.ped > ../../raw_data/level6/cdly.ped
 ```
 
+## MakeBed.sh {#make-bed}
 
+**Script:**
 
+```{bash make-bed, eval=FALSE}
+# /data/tml_gpsm/cjgwx7/scripts/bash/
 
+### Generate BED, BIM, and FAM files using PLINK software
+### Exclude sex chromosomes (X and Y/19 and 20)
+plink --ped ../../raw_data/level6/c.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/c/c --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/d.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/d/d --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/l.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/l/l --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/y.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/y/y --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/cd.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/cd/cd --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/cl.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/cl/cl --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/cy.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/cy/cy --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/dl.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/dl/dl --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/dy.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/dy/dy --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/ly.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/ly/ly --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/dly.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/dly/dly --make-bed --not-chr 19-20
+plink --ped ../../raw_data/level6/cdly.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/cdly/cdly --make-bed --not-chr 19-20
+```
 
+## QualityControl.sh {#quality-control-2}
 
+**Script:**
 
+```{bash quality-control, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/
+
+### Filter by SNPs
+### Subgroup 1
+plink --bfile ../../raw_data/level7/c/c --out ../../intmd/input_data/c/c --make-bed --maf 0.01 --geno 0.1 --nonfounders
+
+### Filter by pigs
+plink --bfile ../../intmd/input_data/c/c --out ../../intmd/input_data/c/c --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 2
+plink --bfile ../../raw_data/level7/d/d --out ../../intmd/input_data/d/d --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/d/d --out ../../intmd/input_data/d/d --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 3
+plink --bfile ../../raw_data/level7/l/l --out ../../intmd/input_data/l/l --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/l/l --out ../../intmd/input_data/l/l --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 4
+plink --bfile ../../raw_data/level7/y/y --out ../../intmd/input_data/y/y --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/y/y --out ../../intmd/input_data/y/y --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 5
+plink --bfile ../../raw_data/level7/cd/cd --out ../../intmd/input_data/cd/cd --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/cd/cd --out ../../intmd/input_data/cd/cd --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 6
+plink --bfile ../../raw_data/level7/cl/cl --out ../../intmd/input_data/cl/cl --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/cl/cl --out ../../intmd/input_data/cl/cl --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 7
+plink --bfile ../../raw_data/level7/cy/cy --out ../../intmd/input_data/cy/cy --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/cy/cy --out ../../intmd/input_data/cy/cy --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 8
+plink --bfile ../../raw_data/level7/dl/dl --out ../../intmd/input_data/dl/dl --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/dl/dl --out ../../intmd/input_data/dl/dl --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 9
+plink --bfile ../../raw_data/level7/dy/dy --out ../../intmd/input_data/dy/dy --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/dy/dy --out ../../intmd/input_data/dy/dy --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 10
+plink --bfile ../../raw_data/level7/ly/ly --out ../../intmd/input_data/ly/ly --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/ly/ly --out ../../intmd/input_data/ly/ly --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 11
+plink --bfile ../../raw_data/level7/dly/dly --out ../../intmd/input_data/dly/dly --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/dly/dly --out ../../intmd/input_data/dly/dly --make-bed --mind 0.1 --nonfounders
+
+### Subgroup 12
+plink --bfile ../../raw_data/level7/cdly/cdly --out ../../intmd/input_data/cdly/cdly --make-bed --maf 0.01 --geno 0.1 --nonfounders
+plink --bfile ../../intmd/input_data/cdly/cdly --out ../../intmd/input_data/cdly/cdly --make-bed --mind 0.1 --nonfounders
+```
+
+## MakeGRMs.sh {#makegrms}
+
+**Script:**
+
+```{bash makegrms, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/
+
+### Make Genomic Relationship Matrix for each subset
+
+gcta64 --bfile ../../intmd/input_data/c/c --make-grm --out ../../intmd/grms/c/c_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/d/d --make-grm --out ../../intmd/grms/d/d_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/l/l --make-grm --out ../../intmd/grms/l/l_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/y/y --make-grm --out ../../intmd/grms/y/y_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/cd/cd --make-grm --out ../../intmd/grms/cd/cd_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/cl/cl --make-grm --out ../../intmd/grms/cl/cl_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/cy/cy --make-grm --out ../../intmd/grms/cy/cy_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/dl/dl --make-grm --out ../../intmd/grms/dl/dl_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/dy/dy --make-grm --out ../../intmd/grms/dy/dy_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/ly/ly --make-grm --out ../../intmd/grms/ly/ly_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/dly/dly --make-grm --out ../../intmd/grms/dly/dly_all --thread-num 24
+gcta64 --bfile ../../intmd/input_data/cdly/cdly --make-grm --out ../../intmd/grms/cdly/cdly_all --thread-num 24
+```
+
+# R Scripts
+
+## MakePheno.R {#makepheno}
+
+**Script:**
+
+```{r make-pheno, eval=FALSE}
+
+```
 

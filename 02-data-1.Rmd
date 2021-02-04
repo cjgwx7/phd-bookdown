@@ -4,8 +4,8 @@
 
    - *Section 3.2* lists and loads R packages used in Part 1 of this book
    - *Section 3.3* introduces and reads in all raw data files
-   - *Section 3.3* provides a data dictionary and summary of each variable in each dataset
-   - *Section 3.4* details the data preparation process, and presents code and procedures that turn raw data into files that are ready for analysis
+   - *Section 3.4* provides a data dictionary and summary of each variable in each dataset
+   - *Section 3.5* details the data preparation process, and presents code and procedures that turn raw data into files that are ready for analysis
 
 ## R Packages
 
@@ -383,7 +383,7 @@ Data preparation procedures were not limited to R in this section. Python and a 
       
 **Additional Intermediate Data**
 
-   1. [Genomic relationship matrices](http://nce.ads.uga.edu/wiki/lib/exe/fetch.php?media=uga_3_relationship.pdf) (**GRMs**) for each subset post-quality control using **G**enome-wide **C**omplex **T**rait **A**nalysis (**GCTA**)
+   1. [Genomic relationship matrices](http://nce.ads.uga.edu/wiki/lib/exe/fetch.php?media=uga_3_relationship.pdf) (**GRMs**) for each subgroup post-quality control using **G**enome-wide **C**omplex **T**rait **A**nalysis (**GCTA**)
    2. Phenotype files for each subgroup using R
       
 ### Pedigree Files (```ped``` and ```pig_info```)
@@ -679,7 +679,7 @@ rm(error_rows, genotype, genotype_tidy, map, map_tidy, ped, ped_tidy, ped_plus_t
 
 ### Genotype File
 
-The next portion of this section will be centered around preparing the genotype files for the selection mapping analyses. From this point on, all data preparation and carpentry was performed on a server hosted at the Animal Science Research Center on The University of Missouri campus. Due to the size of the genotype files, increased computing power was required (at least more than what my local machine can handle). The name and operating system of the server is MUG06 and [CentOS 6.7](https://www.centos.org/), respectively. As mentioned in Section 3.5.2, a multitude of programs will be used on MUG06. Scripts utilized in this process can be extremely long and rather detailed; thus, examples of each script will be shown in this section and the entire scripts will be shown in the Appendix.
+The next portion of this section will be centered around preparing the genotype files for the selection mapping analyses. From this point on, all data preparation and carpentry was performed on a server hosted at the Animal Science Research Center on The University of Missouri campus. Due to the size of the genotype files, increased computing power was required (at least more than what my local machine can handle). The name and operating system of the server is MUG06 and [CentOS 6.7](https://www.centos.org/), respectively. As mentioned in \@ref(process-overview), a multitude of programs will be used on MUG06. Scripts utilized in this process can be extremely long and rather detailed; thus, examples of each script will be shown in this section and the entire scripts will be shown in the Appendix.
 
 #### Subgroups
 
@@ -807,7 +807,9 @@ tibble(BLUPF90 = c(0, 1, 2, 5),
 
 And lastly a screenshot of an example PED file:
 
-![Example of a PLINK PED file, columns 1 to 10.](images/figure_3_1.PNG)
+```{r, echo=FALSE, fig.align='center', fig.cap="Example of a PLINK PED file.", fig.height=6, fig.width=12}
+include_graphics("images/figure_3_1.PNG")
+```
 
 A PLINK MAP file is similar to a BLUPF90 MAP file, with a couple minor differences. Columns in a PLINK MAP file are described below:
 
@@ -818,7 +820,9 @@ A PLINK MAP file is similar to a BLUPF90 MAP file, with a couple minor differenc
 
 The only major differences between PLINK MAP and BLUPF90 MAP files are the addition of the genetic distance column and the order of the columns. However, the genetic distance column is usually always set to zero in our analyses, as we do not need the column.
 
-![Example of a PLINK MAP file.](images/figure_3_2.PNG)
+```{r, echo=FALSE, fig.align='center', fig.cap="Example of a PLINK MAP file."}
+include_graphics("images/figure_3_2.PNG")
+```
 
 Now that we have the differences between PLINK and BLUPF90 genotype and map files sorted, we can get back to the preparation of the genotype data. There is a limit on the number of genotyped animals that can be input into a BLUPF90 program. Thus, each of the subgroup files that are greater than 25,000 will have to be split into smaller batches (everything but subgroups 1 through 4). The following [bash](https://en.wikipedia.org/wiki/Bash_(Unix_shell)) script, \@ref(batch), will accomplish this and all subgroup and batch files will be output as [fixed-width](https://www.softinterface.com/Convert-XLS/Features/Fixed-Width-Text-File-Definition.htm) for BLUPF90 to properly read them:
 
@@ -841,7 +845,7 @@ split --verbose ../../raw_data/level2/cdly.txt_fw -l21015 cdly.
 mv cdly* ../../raw_data/level3/cdly/
 ```
 
-Now, all batch files within each subgroup are in a fixed-width column format and have less than 25,000 observations each. Thus, we are now ready to build the parameter files for renumf90. Each batch file within each sbgroup will be run through renumf90 separately. An example of a renumf90 parameter file (essentially the file that is input into the program), for batch "aa" in subgroup 1 (Crossbred pigs) is presented below:
+Now, all batch files within each subgroup are in a fixed-width column format and have less than 25,000 observations each. Thus, we are now ready to build the parameter files for RENUMF90. Each batch file within each subgroup will be run through RENUM90 separately. An example of a RENUMF90 parameter file (essentially the file that is input into the program), for batch "aa" in subgroup 1 (Crossbred pigs) is presented below:
 
 ```{}
 DATAFILE
@@ -936,7 +940,7 @@ The main file of interest generated from renum.sh is the toPlink.ped file for ea
   2. Sex is incomplete
   3. An extra blank column was added between the first 6 columns and the genotype data
   
-The following script will fix these errors, along with row-binding each batch file into a single PED file for each subgroup:
+The following script (\@ref(processplinkf90)) will fix these errors, along with row-binding each batch file into a single PED file for each subgroup:
 
 ```{bash processplinkf90-ex, eval=FALSE}
 # /data/cjgwx7/tml_gpsm/scripts/bash/ProcessPlinkF90.sh
@@ -1063,14 +1067,111 @@ Again, a lot of different processes are happening in the above two scripts. The 
   4. The FAM file is "column-binded" with the **toPlink_geno.ped** for batch file *i* from subgroup file *j* to create file **j_i.ped**
   5. Within subset *j*, files **j_i.ped** are row-binded into one file and stored in "/data/cjgwx7/tml_gpsm/raw_data/level6/" as **j.ped** (the final PED file for each subgroup)
 
-The resulting files from the above procedure are now ready for input into PLINK to create [BED, BIM, and FAM files](http://zzz.bwh.harvard.edu/plink/data.shtml) and for quality control of at the variant (SNP) and pig level. A FAM file is simply the first 6 columns of a PED file, a BIM file is the MAP file for each subgroup (after quality control), and a BED file is the genotype part of a PED file in [binary format](https://en.wikipedia.org/wiki/Binary_file), which uses less memory and is quicker for the computer to read. In addition, we only want to use autosomal SNPs, which are only on chromosomes 1 to 18. The below script performs this conversion and removes the X and Y chromosomes (for subgroup 1):
+#### PED Binary Conversion 
 
+The resulting files from the above procedure are now ready for input into PLINK to create [BED, BIM, and FAM files](http://zzz.bwh.harvard.edu/plink/data.shtml) and for quality control of at the variant (SNP) and pig level. A FAM file is simply the first 6 columns of a PED file, a BIM file is the MAP file for each subgroup (after quality control), and a BED file is the genotype part of a PED file in [binary format](https://en.wikipedia.org/wiki/Binary_file), which uses less memory and is quicker for the computer to read. In addition, we only want to use autosomal SNPs, which are only on chromosomes 1 to 18. The below script (\@ref(make-bed)) performs this conversion and removes the X and Y chromosomes (for subgroup 1):
 
+```{bash make-bed-ex, eval=FALSE}
+# /data/tml_gpsm/cjgwx7/scripts/bash/
 
+### Generate BED, BIM, and FAM files using PLINK software
+### Exclude sex chromosomes (X and Y/19 and 20)
+plink --ped ../../raw_data/level6/c.ped --map ../../raw_data/level6/global.map --out ../../raw_data/level7/c/c --make-bed --not-chr 19-20
+```
 
+#### Quality Control
 
+The last modification of the genotype files will be filtering for genotype quality control. The following filters will be applied using PLINK:
 
+  1. Remove SNPs with a [genotype call rate](https://onlinelibrary.wiley.com/doi/10.1002/sim.6605#:~:text=The%20call%20rate%20for%20a,less%20than%205%25%20missing%20data.) less than 90%
+  2. Remove SNPs with a [minor allele frequency (**MAF**)](https://en.wikipedia.org/wiki/Minor_allele_frequency#:~:text=Minor%20allele%20frequency%20(MAF)%20is,occurs%20in%20a%20given%20population.&text=MAF%20is%20widely%20used%20in,rare%20variants%20in%20the%20population.) less than 0.01
+  3. Remove individual pigs with genotype call rates less than 90%
+  
+The bash script below (\@ref(quality-control-2)) performs genotype filtering for quality control in each subgroup. The BED, BIM, and FAM files that are output from this script will be intermediate files used in all subsequent analyses.
 
+```{bash quality-control-ex, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/
 
+### Filter by SNPs
+### Subgroup 1
+plink --bfile ../../raw_data/level7/c/c --out ../../intmd/input_data/c/c --make-bed --maf 0.01 --geno 0.1 --nonfounders
 
+### Filter by pigs
+plink --bfile ../../intmd/input_data/c/c --out ../../intmd/input_data/c/c --make-bed --mind 0.1 --nonfounders
+```
 
+With the conclusion of genotype quality control filtering, the genotype files for each subgroup are now ready for genomic analyses. However, two more files for each subgroup are required, and these will be discussed in the next section.
+
+### Additional Files
+
+#### Genomic Relationship Matrices
+
+A genomic relationship matrix (GRM) is a matrix that estimates the genomic similarity between each animal in a genotype file based on their SNP haplotypes. [GCTA](https://cnsgenomics.com/software/gcta/#Overview) has a [function](https://cnsgenomics.com/software/gcta/#MakingaGRM) to estimate this matrix based off of the method described by [Yang et al., 2010](https://www.nature.com/articles/ng.608). Below is the command that was invoked to produce a GRM for subgroup 1 (entire bash script is in \@ref(makegrms)):
+
+```{bash makegrms-ex, eval=FALSE}
+# /data/cjgwx7/tml_gpsm/scripts/bash/
+
+### Make Genomic Relationship Matrix for each subset
+
+gcta64 --bfile ../../intmd/input_data/c/c --make-grm --out ../../intmd/grms/c/c_all --thread-num 24
+```
+
+#### Phenotype Files
+
+The last file required for the genomic analyses is a phenotype file for each subgroup. Each subgroup will need at least one phenotype file with the following columns:
+
+  1. Family ID
+  2. Individual ID
+  3. Phenotype (in this case, AGE)
+  
+Subgroups that will be used in a bivariate analysis, however, will need an additional phenotype file with the following columns:
+
+  1. Family ID
+  2. Individual ID
+  3. Phenotype Trait 1 (Age for the first population)
+  4. Phenotype Trait 2 (Age for the second population)
+  
+Below is an example of this script (ran in R; \@ref(makepheno)) for subgroup 5 (Crossbred and Duroc populations), which will show how each phenotype filetype is made:
+
+```{r make-pheno-ex, eval=FALSE}
+library(data.table)
+library(dplyr)
+
+rm(list=ls())
+
+### Global files
+
+path_ped_plus_intmd <- '../../intmd/pedigree_map/ped_plus_intmd.txt'
+
+ped_plus_intmd <- fread(file = path_ped_plus_intmd,
+                     sep = " ",
+                     header = F,
+                     select = c(1, 7, 15),
+                     col.names = c('PigID', 'Line', 'Age'))
+
+### Subgroup 1
+
+path_fam_c <- '../../intmd/input_data/c/c.fam'
+path_c_uni_out <- '../../intmd/phenotype/c/c_uni.pheno'
+
+fam_c <- fread(file = path_fam_c,
+             sep = " ",
+             header = F,
+             select = c(1:2),
+             col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_c_uni <- left_join(fam_c, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+  
+fwrite(pheno_c_uni,
+       file = path_c_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")  
+```
+
+Finally, with all phenotype files made, we have everything we need to conduct genomic analyses. Thus, th data preparation is complete. As the analyses proceed, additional files or modifications to the intermediate files may be required; however, Chapter 3 provides an extremely detailed overview of how to turn raw genomic data into tidy files that are ready for analyses. The next chapter, Chatper 4, will describe the nuts and bolts of each genomic analysis.
