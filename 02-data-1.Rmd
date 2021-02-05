@@ -482,6 +482,16 @@ After the genetic line filter was applied, 1,267,652 pigs remain in the ```ped_p
 head(ped_plus_tidy)
 ```
 
+#### Filter by Current Location
+
+In early discussions of the project, The Maschhoff's specified that pigs from a recent purchase of outside genetics should be removed from all analyses as selection in these animals was different than the majority of the pigs in the pedigree. Below, pigs with a CurrentSiteCode of "WHHS" or "WHSS" are removed from ```ped_plus_tidy```. It is important that we remove these pigs before calculation of generation number in the next section, as these animals may have different pedigree depth than the rest of The Maschhoff's population.
+
+```{r site-code-filter}
+### Remove WHHS and WHSS CurrentSiteCode
+ped_plus_tidy <- ped_plus_tidy %>% 
+  filter(!CurrentSiteCode %in% c('WHHS', 'WHSS'))
+```
+
 #### Additional Variables
 
 In the previous section, all rows were filtered from ```ped_tidy``` and ```ped_plus_tidy``` that were not needed for the selection mapping analyses. However, there are a few additional columns that need to be created or calculated, namely generation and age. Each pig has a birth date, however it is in a unconventional format (YYYYMM) when it needs to be an actual calendar date (YYYY-MM-DD) for age calculation and time series plotting.
@@ -541,24 +551,15 @@ genotype_tidy <- genotype %>%
           Genotyped = TRUE)
 
 ### Join ped_plus_tidy and genotype dataframes and reorder
-ped_plus_tidy <- left_join(ped_plus_tidy, genotype_tidy, by="PigID") %>%
+ped_plus_intmd <- left_join(ped_plus_tidy, genotype_tidy, by="PigID") %>%
    mutate(Genotyped = ifelse(is.na(Genotyped) == TRUE, FALSE, TRUE)) %>%
    select(PigID:CurrentSiteCode, Genotyped, Age:Generation)
 
-### Glimpse of new variables
-head(ped_plus_tidy[,c(1:3, 9:10, 13:15)]) 
-```
-
-#### Filter by Current Location
-
-In early discussions of the project, The Maschhoff's specified that pigs from a recent purchase of outside genetics should be removed from all analyses as selection in these animals was different than the majority of the pigs in the pedigree. Pigs with a CurrentSiteCode of "WHHS" or "WHSS" were removed.Why weren't these observations removed when genetic lines were filtered? They probably could have been, but in case any of the WHHS or WHSS animals were ancestors of pigs from other sites, their pedigree information was incorporated in the calculation of generation number. In the grand scheme of the analysis, this order likely doesn't make a huge difference.
-
-```{r site-code-filter}
-### Remove WHHS and WHSS
-ped_plus_intmd <- ped_plus_tidy %>%
-   filter(!CurrentSiteCode %in% c('WHHS', 'WHSS'))
-
+### Sync ped to ped_plus
 ped_intmd <- ped_plus_intmd[,1:3]
+
+### Glimpse of new variables
+head(ped_plus_intmd[,c(1:3, 9:10, 14:16)]) 
 ```
 
 The "_intmd" extension replaced "_tidy" in both ```ped_tidy``` and ```ped_plus_tidy```, which signifies that these datasets have reached the intermediate stage and are ready for use in the selection mapping analysis, tables, and figures.
@@ -696,7 +697,8 @@ tibble(Subgroup = c(1:12),
        `Genetic lines` = c("Crossbred", "Duroc", "Landrace", "Yorkshire",
                            "Crossbred, Duroc", "Crossbred, Landrace", "Crossbred, Yorkshire",
                            "Duroc, Landrace", "Duroc, Yorkshire", "Landrace, Yorkshire",
-                           "Duroc, Landrace, Yorkshire", "Crossbred, Duroc, Landrace, Yorkshire")) %>%
+                           "Duroc, Landrace, Yorkshire", "Crossbred, Duroc, Landrace, Yorkshire"),
+       `Code and File Name Abbreviation` = c('c', 'd', 'l', 'y', 'cd', 'cl', 'cy', 'dl', 'dy', 'ly', 'dly', 'cdly')) %>%
    kable(.,
          row.names = FALSE,
          align = 'c',
