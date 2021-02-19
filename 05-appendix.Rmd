@@ -782,6 +782,410 @@ gcta64 --bfile ../../intmd/input_data/cdly/cdly --make-grm --out ../../intmd/grm
 **Script:**
 
 ```{r make-pheno, eval=FALSE}
+library(data.table)
+library(dplyr)
+
+rm(list=ls())
+
+### Global files
+
+path_ped_plus_intmd <- '../../intmd/pedigree_map/ped_plus_intmd.txt'
+
+ped_plus_intmd <- fread(file = path_ped_plus_intmd,
+                     sep = " ",
+                     header = F,
+                     select = c(1, 7, 15),
+                     col.names = c('PigID', 'Line', 'Age'))
+
+### Subgroup 1
+
+path_fam_c <- '../../intmd/input_data/c/c.fam'
+path_c_uni_out <- '../../intmd/phenotype/c/c_uni.pheno'
+
+fam_c <- fread(file = path_fam_c,
+             sep = " ",
+             header = F,
+             select = c(1:2),
+             col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_c_uni <- left_join(fam_c, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+  
+fwrite(pheno_c_uni,
+       file = path_c_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")  
+
+### Subgroup 2
+
+path_fam_d <- '../../intmd/input_data/d/d.fam'
+path_d_uni_out <- '../../intmd/phenotype/d/d_uni.pheno'
+
+fam_d <- fread(file = path_fam_d,
+               sep = " ",
+               header = F,
+               select = c(1:2),
+               col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_d_uni <- left_join(fam_d, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_d_uni,
+       file = path_d_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")  
+
+### Subgroup 3
+
+path_fam_l <- '../../intmd/input_data/l/l.fam'
+path_l_uni_out <- '../../intmd/phenotype/l/l_uni.pheno'
+
+fam_l <- fread(file = path_fam_l,
+               sep = " ",
+               header = F,
+               select = c(1:2),
+               col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_l_uni <- left_join(fam_l, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_l_uni,
+       file = path_l_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA") 
+
+### Subgroup 4
+
+path_fam_y <- '../../intmd/input_data/y/y.fam'
+path_y_uni_out <- '../../intmd/phenotype/y/y_uni.pheno'
+
+fam_y <- fread(file = path_fam_y,
+               sep = " ",
+               header = F,
+               select = c(1:2),
+               col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_y_uni <- left_join(fam_y, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_y_uni,
+       file = path_y_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA") 
+
+### Subgroup 5
+
+path_fam_cd <- '../../intmd/input_data/cd/cd.fam'
+path_cd_uni_out <- '../../intmd/phenotype/cd/cd_uni.pheno'
+path_cd_bi_out <- '../../intmd/phenotype/cd/cd_bi.pheno'
+
+fam_cd <- fread(file = path_fam_cd,
+                sep = " ",
+                header = F,
+                select = c(1:2),
+                col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_cd_uni <- left_join(fam_cd, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_cd_uni,
+       path_cd_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+pheno_cd_bi <- left_join(fam_cd, ped_plus_intmd, by="PigID") %>%
+  rename(Crossbred = Age) %>%
+  mutate(Duroc = Crossbred) %>%
+  mutate(Crossbred = ifelse(Line == 9006, Crossbred, NA),
+         Duroc = ifelse(Line == 1006, Duroc, NA)) %>%
+  arrange(rowid) %>%
+  select(-c(rowid, Line))
+
+fwrite(pheno_cd_bi,
+       path_cd_bi_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+### Subgroup 6
+
+path_fam_cl <- '../../intmd/input_data/cl/cl.fam'
+path_cl_uni_out <- '../../intmd/phenotype/cl/cl_uni.pheno'
+path_cl_bi_out <- '../../intmd/phenotype/cl/cl_bi.pheno'
+
+fam_cl <- fread(file = path_fam_cl,
+                sep = " ",
+                header = F,
+                select = c(1:2),
+                col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_cl_uni <- left_join(fam_cl, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_cl_uni,
+       path_cl_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+pheno_cl_bi <- left_join(fam_cl, ped_plus_intmd, by="PigID") %>%
+  rename(Crossbred = Age) %>%
+  mutate(Landrace = Crossbred) %>%
+  mutate(Crossbred = ifelse(Line == 9006, Crossbred, NA),
+         Landrace = ifelse(Line == 10, Landrace, NA)) %>%
+  arrange(rowid) %>%
+  select(-c(rowid, Line))
+
+fwrite(pheno_cl_bi,
+       path_cl_bi_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+### Subgroup 7
+
+path_fam_cy <- '../../intmd/input_data/cy/cy.fam'
+path_cy_uni_out <- '../../intmd/phenotype/cy/cy_uni.pheno'
+path_cy_bi_out <- '../../intmd/phenotype/cy/cy_bi.pheno'
+
+fam_cy <- fread(file = path_fam_cy,
+                sep = " ",
+                header = F,
+                select = c(1:2),
+                col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_cy_uni <- left_join(fam_cy, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_cy_uni,
+       path_cy_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+pheno_cy_bi <- left_join(fam_cy, ped_plus_intmd, by="PigID") %>%
+  rename(Crossbred = Age) %>%
+  mutate(Yorkshire = Crossbred) %>%
+  mutate(Crossbred = ifelse(Line == 9006, Crossbred, NA),
+         Yorkshire = ifelse(Line == 11, Yorkshire, NA)) %>%
+  arrange(rowid) %>%
+  select(-c(rowid, Line))
+
+fwrite(pheno_cy_bi,
+       path_cy_bi_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+### Subgroup 8
+
+path_fam_dl <- '../../intmd/input_data/dl/dl.fam'
+path_dl_uni_out <- '../../intmd/phenotype/dl/dl_uni.pheno'
+path_dl_bi_out <- '../../intmd/phenotype/dl/dl_bi.pheno'
+
+fam_dl <- fread(file = path_fam_dl,
+                sep = " ",
+                header = F,
+                select = c(1:2),
+                col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_dl_uni <- left_join(fam_dl, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_dl_uni,
+       path_dl_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+pheno_dl_bi <- left_join(fam_dl, ped_plus_intmd, by="PigID") %>%
+  rename(Duroc = Age) %>%
+  mutate(Landrace = Duroc) %>%
+  mutate(Duroc = ifelse(Line == 1006, Duroc, NA),
+         Landrace = ifelse(Line == 10, Landrace, NA)) %>%
+  arrange(rowid) %>%
+  select(-c(rowid, Line))
+
+fwrite(pheno_dl_bi,
+       path_dl_bi_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+### Subgroup 9
+
+path_fam_dy <- '../../intmd/input_data/dy/dy.fam'
+path_dy_uni_out <- '../../intmd/phenotype/dy/dy_uni.pheno'
+path_dy_bi_out <- '../../intmd/phenotype/dy/dy_bi.pheno'
+
+fam_dy <- fread(file = path_fam_dy,
+                sep = " ",
+                header = F,
+                select = c(1:2),
+                col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_dy_uni <- left_join(fam_dy, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_dy_uni,
+       path_dy_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+pheno_dy_bi <- left_join(fam_dy, ped_plus_intmd, by="PigID") %>%
+  rename(Duroc = Age) %>%
+  mutate(Yorkshire = Duroc) %>%
+  mutate(Duroc = ifelse(Line == 1006, Duroc, NA),
+         Yorkshire = ifelse(Line == 11, Yorkshire, NA)) %>%
+  arrange(rowid) %>%
+  select(-c(rowid, Line))
+
+fwrite(pheno_dy_bi,
+       path_dy_bi_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+### Subgroup 10
+
+path_fam_ly <- '../../intmd/input_data/ly/ly.fam'
+path_ly_uni_out <- '../../intmd/phenotype/ly/ly_uni.pheno'
+path_ly_bi_out <- '../../intmd/phenotype/ly/ly_bi.pheno'
+
+fam_ly <- fread(file = path_fam_ly,
+                sep = " ",
+                header = F,
+                select = c(1:2),
+                col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_ly_uni <- left_join(fam_ly, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_ly_uni,
+       path_ly_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+pheno_ly_bi <- left_join(fam_ly, ped_plus_intmd, by="PigID") %>%
+  rename(Landrace = Age) %>%
+  mutate(Yorkshire = Landrace) %>%
+  mutate(Landrace = ifelse(Line == 10, Landrace, NA),
+         Yorkshire = ifelse(Line == 11, Yorkshire, NA)) %>%
+  arrange(rowid) %>%
+  select(-c(rowid, Line))
+
+fwrite(pheno_ly_bi,
+       path_ly_bi_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA")
+
+### Subgroup 11
+
+path_fam_dly <- '../../intmd/input_data/dly/dly.fam'
+path_dly_uni_out <- '../../intmd/phenotype/dly/dly_uni.pheno'
+
+fam_dly <- fread(file = path_fam_dly,
+               sep = " ",
+               header = F,
+               select = c(1:2),
+               col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_dly_uni <- left_join(fam_dly, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_dly_uni,
+       file = path_dly_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA") 
+
+### Subgroup 12
+
+path_fam_cdly <- '../../intmd/input_data/cdly/cdly.fam'
+path_cdly_uni_out <- '../../intmd/phenotype/cdly/cdly_uni.pheno'
+
+fam_cdly <- fread(file = path_fam_cdly,
+                 sep = " ",
+                 header = F,
+                 select = c(1:2),
+                 col.names = c("FID", "PigID")) %>%
+  tibble::rowid_to_column()
+
+pheno_cdly_uni <- left_join(fam_cdly, ped_plus_intmd[,c(1, 3)], by="PigID") %>%
+  arrange(rowid) %>%
+  select(-rowid)
+
+fwrite(pheno_cdly_uni,
+       file = path_cdly_uni_out,
+       sep = " ",
+       row.names = FALSE,
+       col.names = FALSE,
+       quote = FALSE,
+       na = "NA") 
 
 ```
 

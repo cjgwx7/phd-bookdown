@@ -16,12 +16,15 @@ library(AlphaSimR) # Genetic population simulation package
 library(bookdown) # Compilation of book
 library(dataMeta) # Data dictionaries
 library(data.table) # Read in delimited files
+library(GALLO) # QTL Annotation/Enrichment
+library(gprofiler2) # Gene Annotation/Enrichment
 library(Hmisc) # Miscellaneous
 library(kableExtra) # Results tables
 library(knitr) # RMarkdown report generation
 library(lubridate) # Management of date and time variables
-library(pedigree) # Calculation of generation number
 library(optiSel) # Evaluation of pedigree file
+library(pedigree) # Calculation of generation number
+library(qvalue) # Estimation of Q-values
 library(tidyverse) # Data management, cleaning, and visualization
 library(vroom) # Efficient loading of large files
 ```
@@ -809,7 +812,7 @@ tibble(BLUPF90 = c(0, 1, 2, 5),
 
 And lastly a screenshot of an example PED file:
 
-```{r, echo=FALSE, fig.align='center', fig.cap="Example of a PLINK PED file.", fig.height=6, fig.width=12}
+```{r, echo=FALSE, fig.align='center', fig.cap="Example of a PLINK PED file.", out.width="50%"}
 include_graphics("images/figure_3_1.PNG")
 ```
 
@@ -822,7 +825,7 @@ A PLINK MAP file is similar to a BLUPF90 MAP file, with a couple minor differenc
 
 The only major differences between PLINK MAP and BLUPF90 MAP files are the addition of the genetic distance column and the order of the columns. However, the genetic distance column is usually always set to zero in our analyses, as we do not need the column.
 
-```{r, echo=FALSE, fig.align='center', fig.cap="Example of a PLINK MAP file."}
+```{r, echo=FALSE, fig.align='center', fig.cap="Example of a PLINK MAP file.", out.width="50%"}
 include_graphics("images/figure_3_2.PNG")
 ```
 

@@ -3,3 +3,8 @@
 .RData
 .Ruserdata
 _book/
+GeneAnnotation.RData
+GeneEnrichment.RData
+QTL_Enrich_Results.RData
+pheno/
+results/
