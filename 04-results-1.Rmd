@@ -392,3 +392,74 @@ publish_gosttable(gostres, highlight_terms = gostres$result,
                         show_columns = c("source", "term_name", "term_size", "intersection_size"),
                         filename = NULL)
 ```
+
+## Principal Component Analysis
+
+```{r input-pca}
+pca <- fread("results/cdly/cdly_all_pca.eigenvec",
+             select = c(1, 3:4),
+             col.names = c("PigID", "PC1", "PC2")) %>%
+  left_join(ped_plus_intmd[,c(1, 7)], by="PigID")
+
+mendel_multigen <- fread("results/cdly/plink.mendel") %>%
+  mutate(ERROR = paste(ERROR, V7, V8, V9, V10, sep = " ")) %>%
+  select(FID:ERROR) %>%
+  group_by(KID, CODE) %>%
+  summarise(N = n()) %>%
+  rename(PigID = KID,
+         Code = CODE)
+
+mendel_multigen_summary <- mendel_multigen %>%
+  mutate(CodeCategory = ifelse(Code <= 2, "All",
+                                ifelse(Code == 5 | Code == 8, "Pig",
+                                       ifelse(Code == 3 | Code == 6, "Father & Pig", "Mother & Pig")))) %>%
+  group_by(PigID, CodeCategory) %>%
+  summarise(N = sum(N)) %>%
+  mutate(ErrorRate = (N/46453) * 100,
+         ErrorCategory = ifelse(ErrorRate >= 10, "High",
+                                ifelse(ErrorRate < 5, "Low", "Moderate")),
+         ErrorCategory = factor(ErrorCategory,
+                                levels = c("Low", "Moderate", "High")))
+```
+
+```{r figure-5-16, out.height="100%", out.width="100%", fig.cap="Principal component analysis of all pigs", fig.align='center'}
+ggplot(pca, aes(x = PC1, y = PC2, color = Line)) +
+  geom_point() + 
+  labs(x = "Principal Component 1",
+       y = "Principal Component 2") +
+  scale_color_npg() +
+  theme_light() +
+  theme(axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold")) + 
+  guides(color=guide_legend(title="Genetic Line"))
+```
+
+```{r figure-5-17, out.height="100%", out.width="100%", fig.cap="Principal component analysis of purebred pigs", fig.align='center'}
+ggplot(pca %>% filter(Line %in% c("Duroc", "Landrace", "Yorkshire")), aes(x = PC1, y = PC2, color = Line)) +
+  geom_point() + 
+  labs(x = "Principal Component 1",
+       y = "Principal Component 2") +
+  scale_color_manual(values = c("Duroc" = "#4DBBD5FF",
+                                "Landrace" = "#00A087FF",
+                                "Yorkshire" = "#3C5488FF")) +
+  theme_light() +
+  theme(axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold")) + 
+  guides(color=guide_legend(title="Genetic Line"))
+```
+
+```{r figure-5-18, out.height="100%", out.width="100%", fig.cap="Mendelian errors", fig.align='center'}
+mendel_multigen_summary %>%
+  left_join(pca, by = "PigID") %>%
+ggplot(., aes(x = PC1, y = PC2, color = ErrorCategory)) +
+  geom_point() + 
+  labs(x = "Principal Component 1",
+       y = "Principal Component 2") +
+  scale_color_manual(values = c("Low" = "#4DBBD5FF",
+                                "Moderate" = "#3C5488FF",
+                                "High" = "#E64B35FF")) +
+  theme_light() +
+  theme(axis.title = element_text(face = "bold"),
+        legend.title = element_text(face = "bold")) +
+  facet_wrap(~CodeCategory)
+```

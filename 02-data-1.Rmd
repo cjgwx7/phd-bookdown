@@ -17,6 +17,7 @@ library(bookdown) # Compilation of book
 library(dataMeta) # Data dictionaries
 library(data.table) # Read in delimited files
 library(GALLO) # QTL Annotation/Enrichment
+library(ggsci) # Color palettes for scientific publications
 library(gprofiler2) # Gene Annotation/Enrichment
 library(Hmisc) # Miscellaneous
 library(kableExtra) # Results tables
